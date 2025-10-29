@@ -1,0 +1,50 @@
+*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0b0d12;color:#e7ebf4}
+header{padding:24px 20px 12px;border-bottom:1px solid #1a2130;background:linear-gradient(180deg,#0f1420, #0b0d12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:#f43f5e;box-shadow:0 0 16px #f43f5e88}
+h1{margin:0;font-size:20px;letter-spacing:.5px}
+.beta{margin-left:8px;font-size:12px;color:#8b93a7;padding:2px 6px;border:1px solid #2a3347;border-radius:999px}
+.subtitle{margin:6px 0 0;color:#9aa3b7;font-size:13px}
+main{padding:16px 20px 80px;max-width:1200px;margin:0 auto}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.controls input, .controls select, .controls button{background:#0f172a;color:#e7ebf4;border:1px solid #27324a;border-radius:8px;padding:10px 12px;font-size:14px}
+.controls button{cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#0f172a;border:1px solid #27324a;border-radius:12px;padding:14px}
+.kpi-label{font-size:12px;color:#9aa3b7}
+.kpi-value{font-size:24px;margin-top:6px}
+.table-wrap{background:#0f172a;border:1px solid #27324a;border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:#0c1322}
+th,td{padding:12px 10px;border-bottom:1px solid #1c2538;font-size:14px}
+th{color:#9aa3b7;cursor:pointer;user-select:none}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#0e1629}
+.badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #2a3347}
+.badge.excellent{background:#052e1a;color:#80ed99;border-color:#1f6f4b}
+.badge.track{background:#1e2230;color:#e7ebf4}
+.badge.needs{background:#2a0f1a;color:#ff8fab;border-color:#622437}
+.score{font-variant-numeric:tabular-nums}
+.empty{display:none;padding:18px;color:#9aa3b7;text-align:center}
+.drawer{position:fixed;top:0;right:-520px;width:520px;height:100vh;background:#0b0f1a;border-left:1px solid #27324a;transition:right .25s ease;z-index:10;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1c2538;background:#0c1322}
+.drawer-header h2{margin:0;font-size:18px}
+.drawer-header button{background:transparent;border:1px solid #27324a;color:#e7ebf4;border-radius:8px;font-size:22px;line-height:1;width:36px;height:36px;cursor:pointer}
+.drawer-body{padding:14px 16px;overflow:auto}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+.pill{background:#11172a;color:#c9d4f2;border:1px solid #27324a;border-radius:999px;padding:6px 10px;font-size:12px}
+.metrics ul, .strengths ul, .improvements ul{list-style:none;padding:0;margin:8px 0}
+.metrics li, .strengths li, .improvements li{padding:8px 10px;border:1px solid #27324a;border-radius:8px;margin-bottom:6px;background:#0f172a;display:flex;justify-content:space-between;gap:10px}
+.metric-label{color:#c9d4f2}
+.metric-score{color:#9aa3b7}
+.checklist ul{list-style:none;padding:0;margin:8px 0}
+.checklist li{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.checklist input{accent-color:#5eead4}
+.note{color:#9aa3b7;font-size:12px;margin-top:6px}
+.comments p{white-space:pre-wrap;background:#0f172a;border:1px solid #27324a;border-radius:8px;padding:10px}
+footer{position:fixed;bottom:0;left:0;right:0;background:#0c1322;border-top:1px solid #1c2538;color:#9aa3b7;padding:10px 16px;font-size:13px}
+@media (max-width: 760px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .drawer{width:100vw}
+}

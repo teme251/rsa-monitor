@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Avis RSA Monitor — Demo (1–10 Scale)</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="dot"></div>
+      <h1>Avis RSA Monitor<span class="beta">Demo • 1–10 Scale</span></h1>
+    </div>
+    <p class="subtitle">Operational compliance & customer-first behavior — quick read-only view</p>
+  </header>
+
+  <main>
+    <section class="controls">
+      <input id="search" type="search" placeholder="Search by name…" />
+      <select id="shiftFilter">
+        <option value="">All shifts</option>
+        <option>Morning</option>
+        <option>Evening</option>
+        <option>Overnight</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="Excellent">Excellent</option>
+        <option value="On Track">On Track</option>
+        <option value="Needs Coaching">Needs Coaching</option>
+      </select>
+      <button id="resetBtn">Reset</button>
+    </section>
+
+    <section class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Associates</div>
+        <div class="kpi-value" id="kpiAssociates">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Average Score</div>
+        <div class="kpi-value" id="kpiAvgScore">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Excellent</div>
+        <div class="kpi-value" id="kpiExcellent">—</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Needs Coaching</div>
+        <div class="kpi-value" id="kpiNeeds">—</div>
+      </div>
+    </section>
+
+    <section class="table-wrap">
+      <table id="rsaTable">
+        <thead>
+          <tr>
+            <th data-sort="name">Associate</th>
+            <th data-sort="shift">Shift</th>
+            <th data-sort="customersServed">Customers</th>
+            <th data-sort="overall">Overall Score</th>
+            <th data-sort="status">Status</th>
+            <th>Last Evaluated</th>
+          </tr>
+        </thead>
+        <tbody id="rsaTbody"></tbody>
+      </table>
+      <div id="emptyState" class="empty">No results. Try clearing filters.</div>
+    </section>
+  </main>
+
+  <aside id="detailDrawer" class="drawer">
+    <div class="drawer-header">
+      <h2 id="drawerName">Associate</h2>
+      <button id="closeDrawer" title="Close">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="pill-row">
+        <span id="drawerShift" class="pill"></span>
+        <span id="drawerStatus" class="pill"></span>
+        <span id="drawerScore" class="pill"></span>
+      </div>
+
+      <div class="metrics">
+        <h3>Category Scores (1–10)</h3>
+        <ul id="metricList"></ul>
+      </div>
+
+      <div class="checklist">
+        <h3>Policy & Customer-First Checklist</h3>
+        <ul id="checklist"></ul>
+        <p class="note">Checklist captured by Operational Manager observations.</p>
+      </div>
+
+      <div class="strengths">
+        <h3>Strengths</h3>
+        <ul id="strengthsList"></ul>
+      </div>
+
+      <div class="improvements">
+        <h3>Areas for Improvement</h3>
+        <ul id="improveList"></ul>
+      </div>
+
+      <div class="comments">
+        <h3>Manager Notes</h3>
+        <p id="drawerNotes">—</p>
+      </div>
+    </div>
+  </aside>
+
+  <footer>
+    <p>Read-only demo (1–10 scale). Share this page link. To collect data, connect a Google Form or simple admin later.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
