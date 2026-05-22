@@ -1,119 +1,826 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Avis RSA Monitor — Demo (1–10 Scale)</title>
-  <link rel="stylesheet" href="styles.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSA Performance Metrics System</title>
+<meta name="description" content="Personal prototype demonstrating AI-enabled frontline operations performance coaching. No confidential company data is used.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d13;--surface:#15181f;--surface-2:#1c2029;--surface-3:#222733;
+  --line:#272b37;--line-bright:#363c4b;--ink:#e9ebf2;--ink-soft:#a7adbf;--muted:#6f7589;
+  --accent:#2fe0c4;--accent-ink:#06120f;--glow:rgba(47,224,196,.30);
+  --good:#34d399;--watch:#f4c152;--high:#f4715f;
+  --radius:16px;--shadow:0 14px 38px -22px rgba(0,0,0,.9);--inset:inset 0 1px 0 rgba(255,255,255,.035);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif;color:var(--ink);
+  background-color:var(--bg);line-height:1.58;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(900px 520px at 82% -8%,rgba(47,224,196,.11),transparent 62%),
+    radial-gradient(780px 620px at -6% 2%,rgba(78,108,235,.09),transparent 58%),
+    radial-gradient(rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:auto,auto,23px 23px;background-attachment:fixed;
+}
+h1,h2,h3,h4{font-family:"Sora",sans-serif;font-weight:600;letter-spacing:-.012em;margin:0}
+a{color:var(--accent)}
+::selection{background:rgba(47,224,196,.25);color:#fff}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2b3040;border-radius:8px;border:2px solid var(--bg)}
+.hidden{display:none!important}
+
+/* layout */
+.disclaimer{background:#0e1119;border-bottom:1px solid var(--line);color:var(--muted);
+  font-size:12px;text-align:center;padding:8px 16px}
+.disclaimer::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 8px var(--glow);margin-right:8px;vertical-align:middle}
+header{background:rgba(13,16,23,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:20}
+.header-in{max-width:1240px;margin:0 auto;padding:16px 26px;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px;cursor:pointer}
+.logo{width:46px;height:46px;display:grid;place-items:center;flex-shrink:0;
+  background:linear-gradient(160deg,#1d222d,#13161d);border:1px solid var(--line-bright);
+  border-radius:13px;box-shadow:0 0 22px -8px var(--glow),var(--inset)}
+.logo svg rect{fill:var(--accent)}
+.logo svg{filter:drop-shadow(0 0 5px var(--glow))}
+.brand h1{font-size:19px}
+.brand .sub{font-size:10.5px;color:var(--accent);font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;margin-top:3px;font-family:"Sora",sans-serif}
+nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.container{max-width:1240px;margin:0 auto;padding:28px 26px 70px;animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* buttons */
+button{border:1px solid transparent;border-radius:10px;padding:9px 16px;font:inherit;
+  font-size:13.5px;font-weight:600;cursor:pointer;transition:.16s;font-family:"Sora",sans-serif}
+.btn-primary{background:var(--accent);color:var(--accent-ink);box-shadow:0 0 18px -6px var(--glow)}
+.btn-primary:hover{background:#46ecd2;box-shadow:0 0 26px -4px var(--glow);transform:translateY(-1px)}
+.btn-ghost{background:#161a22;border:1px solid var(--line-bright);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost.active{border-color:var(--accent);color:var(--accent);background:rgba(47,224,196,.07)}
+.btn-sm{padding:6px 12px;font-size:12.5px}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:18px;box-shadow:var(--shadow),var(--inset)}
+.card h3{font-size:16px;margin-bottom:4px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.toolbar .spacer{flex:1}
+.note{color:var(--muted);font-size:13px}
+.page-title{font-size:24px;margin-bottom:3px}
+.page-sub{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+
+/* inputs */
+input,select,textarea{background:#10131a;border:1px solid var(--line-bright);border-radius:10px;
+  padding:9px 12px;font:inherit;font-size:14px;color:var(--ink);transition:.15s}
+input::placeholder,textarea::placeholder{color:#5b6172}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(47,224,196,.16)}
+textarea{resize:vertical;width:100%}
+label{font-size:13px;color:var(--ink-soft)}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:18px}
+.kpi{position:relative;background:linear-gradient(170deg,#181c25,#13161d);border:1px solid var(--line);
+  border-radius:var(--radius);padding:19px 21px;box-shadow:0 0 26px -18px var(--glow),var(--shadow),var(--inset);
+  transition:.16s}
+.kpi::before{content:"";position:absolute;left:21px;right:21px;top:0;height:1.5px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.7}
+.kpi:hover{transform:translateY(-3px);border-color:var(--line-bright)}
+.kpi .lab{font-family:"Sora",sans-serif;font-size:11px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted)}
+.kpi .val{font-family:"Sora",sans-serif;font-size:32px;font-weight:700;color:var(--ink);
+  line-height:1.1;margin-top:5px;font-variant-numeric:tabular-nums}
+.kpi .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+/* tables */
+.table-wrap{overflow-x:auto;border-radius:10px}
+table{width:100%;border-collapse:collapse}
+th{font-family:"Sora",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 10px;
+  border-bottom:1px solid var(--line-bright)}
+td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-soft)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.clickable{cursor:pointer;transition:background .12s}
+tbody tr.clickable:hover{background:var(--surface-2)}
+td .name{color:var(--accent);font-weight:600}
+
+/* score chips */
+.score{display:inline-block;min-width:36px;text-align:center;padding:3px 9px;border-radius:7px;
+  font-weight:700;font-size:13px;font-variant-numeric:tabular-nums;font-family:"Sora",sans-serif;color:#0a0c10}
+.c0{background:#f0563c;color:#fff}.c1{background:#f4663a;color:#fff}.c2{background:#f67a3a;color:#fff}
+.c3{background:#f49038}.c4{background:#eca838}.c5{background:#dcb838}.c6{background:#c2c63e}
+.c7{background:#9ec84a}.c8{background:#74c656}.c9{background:#4ec566}.c10{background:#38c878}
+
+/* badges */
+.badge{display:inline-block;font-family:"Sora",sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.03em;padding:3px 11px;border-radius:999px;border:1px solid}
+.b-exc,.b-low{color:var(--good);background:rgba(52,211,153,.11);border-color:rgba(52,211,153,.32)}
+.b-ok,.b-medium{color:var(--watch);background:rgba(244,193,82,.11);border-color:rgba(244,193,82,.32)}
+.b-needs,.b-high{color:var(--high);background:rgba(244,113,95,.12);border-color:rgba(244,113,95,.34)}
+.badge.lg{font-size:13.5px;padding:7px 19px}
+.badge.lg.b-low{box-shadow:0 0 20px -7px rgba(52,211,153,.6)}
+.badge.lg.b-medium{box-shadow:0 0 20px -7px rgba(244,193,82,.6)}
+.badge.lg.b-high{box-shadow:0 0 20px -7px rgba(244,113,95,.6)}
+
+/* AI coaching card */
+.coach{position:relative;background:linear-gradient(180deg,#181d27,#14171f);
+  border:1px solid var(--line-bright);border-radius:var(--radius);
+  box-shadow:0 0 50px -26px var(--glow),var(--shadow),var(--inset);padding:26px;margin-bottom:18px;overflow:hidden}
+.coach::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.coach-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  padding-bottom:17px;border-bottom:1px solid var(--line)}
+.coach-head h3{font-size:19px}
+.coach-head .m{font-size:13px;color:var(--muted);margin-top:4px}
+.ai-tag{font-family:"Sora",sans-serif;font-size:10px;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--accent);background:rgba(47,224,196,.10);
+  border:1px solid rgba(47,224,196,.4);padding:6px 11px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 0 16px -6px var(--glow)}
+.coach-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:19px 0}
+.coach-grid h4{font-family:"Sora",sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.list li{font-size:13.5px;color:var(--ink-soft);padding-left:24px;position:relative}
+.list li::before{position:absolute;left:0;top:0;font-weight:700;font-size:13px}
+.list.good li::before{content:"\2713";color:var(--good)}
+.list.watch li::before{content:"\2192";color:var(--watch)}
+.coach-row{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;
+  padding:19px 21px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px}
+.coach-risk{text-align:center}
+.rk-lab{display:block;font-family:"Sora",sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.coach-act p{font-size:13.5px;margin:0;color:var(--ink-soft)}
+.coach-note{margin:17px 0 0;padding:16px 19px;border-left:2px solid var(--accent);
+  background:rgba(47,224,196,.05);border-radius:0 10px 10px 0;font-family:"Sora",sans-serif;
+  font-size:14.5px;font-style:italic;color:var(--ink);line-height:1.6}
+.coach-note .q{font-size:21px;color:var(--accent);margin-right:3px}
+.coach-foot{margin-top:15px;font-size:11.5px;color:var(--muted);line-height:1.65}
+
+/* category bars */
+.catbar{display:grid;grid-template-columns:150px 1fr 46px;gap:12px;align-items:center;
+  padding:8px 0;font-size:13.5px}
+.catbar .cn{color:var(--ink-soft)}
+.track{height:9px;background:#10131a;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.fill{height:100%;border-radius:6px}
+.catbar .cv{text-align:right;font-family:"Sora",sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* rate form */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+.rate-cat{margin-bottom:6px}
+.rate-cat .cl{font-family:"Sora",sans-serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:7px;
+  display:flex;justify-content:space-between}
+.rate-cat .cl .w{color:var(--muted);font-weight:500}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips input{display:none}
+.chips label{border:1px solid var(--line-bright);background:#10131a;color:var(--ink-soft);
+  border-radius:9px;padding:7px 0;width:40px;text-align:center;cursor:pointer;font-family:"Sora",sans-serif;
+  font-weight:600;font-variant-numeric:tabular-nums;transition:.13s}
+.chips label:hover{border-color:var(--accent);color:var(--ink)}
+.chips input:checked+label{color:#fff;border-color:transparent;box-shadow:0 0 14px -5px rgba(0,0,0,.6)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-soft);
+  padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#10131a;cursor:pointer;
+  margin-bottom:9px}
+.chk:hover{border-color:var(--line-bright)}
+.chk input{margin-top:2px;accent-color:var(--accent)}
+.proj{display:flex;align-items:center;gap:18px;padding:18px 22px;background:var(--surface-2);
+  border:1px solid var(--line-bright);border-radius:12px;margin:6px 0 16px}
+.proj .pv{font-family:"Sora",sans-serif;font-size:40px;font-weight:700;color:var(--accent);
+  line-height:1;font-variant-numeric:tabular-nums}
+.proj .pl{font-size:12px;color:var(--muted);font-family:"Sora",sans-serif;letter-spacing:.06em;
+  text-transform:uppercase}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:#181d27;border:1px solid var(--accent);color:var(--ink);font-family:"Sora",sans-serif;
+  font-size:14px;font-weight:600;padding:12px 24px;border-radius:11px;box-shadow:0 0 30px -8px var(--glow);
+  opacity:0;pointer-events:none;transition:.3s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* spark */
+.spark svg{width:100%;height:auto;display:block}
+
+footer{border-top:1px solid var(--line);background:#0e1119;padding:22px 26px;text-align:center}
+footer p{font-size:12px;color:var(--ink-soft);margin:3px 0}
+footer .fine{font-size:11px;color:var(--muted)}
+footer a{cursor:pointer}
+
+@media(max-width:900px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .grid2,.coach-grid{grid-template-columns:1fr;gap:16px}
+  .coach-row{grid-template-columns:1fr;gap:14px;text-align:left}
+  .coach-risk{text-align:left}
+  .catbar{grid-template-columns:120px 1fr 42px}
+}
+@media(max-width:560px){.header-in,.container{padding-left:16px;padding-right:16px}}
+</style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <div class="dot"></div>
-      <h1>Avis RSA Monitor<span class="beta">Demo • 1–10 Scale</span></h1>
-    </div>
-    <p class="subtitle">Operational compliance & customer-first behavior — quick read-only view</p>
-  </header>
 
-  <main>
-    <section class="controls">
-      <input id="search" type="search" placeholder="Search by name…" />
-      <select id="shiftFilter">
-        <option value="">All shifts</option>
-        <option>Morning</option>
-        <option>Evening</option>
-        <option>Overnight</option>
-      </select>
-      <select id="statusFilter">
-        <option value="">All statuses</option>
-        <option value="Excellent">Excellent</option>
-        <option value="On Track">On Track</option>
-        <option value="Needs Coaching">Needs Coaching</option>
-      </select>
-      <button id="resetBtn">Reset</button>
-    </section>
+<div class="disclaimer">Personal prototype for demonstration purposes. No confidential company data is used.</div>
 
-    <section class="kpis">
-      <div class="kpi">
-        <div class="kpi-label">Associates</div>
-        <div class="kpi-value" id="kpiAssociates">—</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Average Score</div>
-        <div class="kpi-value" id="kpiAvgScore">—</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Excellent</div>
-        <div class="kpi-value" id="kpiExcellent">—</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Needs Coaching</div>
-        <div class="kpi-value" id="kpiNeeds">—</div>
-      </div>
-    </section>
-
-    <section class="table-wrap">
-      <table id="rsaTable">
-        <thead>
-          <tr>
-            <th data-sort="name">Associate</th>
-            <th data-sort="shift">Shift</th>
-            <th data-sort="customersServed">Customers</th>
-            <th data-sort="overall">Overall Score</th>
-            <th data-sort="status">Status</th>
-            <th>Last Evaluated</th>
-          </tr>
-        </thead>
-        <tbody id="rsaTbody"></tbody>
-      </table>
-      <div id="emptyState" class="empty">No results. Try clearing filters.</div>
-    </section>
-  </main>
-
-  <aside id="detailDrawer" class="drawer">
-    <div class="drawer-header">
-      <h2 id="drawerName">Associate</h2>
-      <button id="closeDrawer" title="Close">×</button>
-    </div>
-    <div class="drawer-body">
-      <div class="pill-row">
-        <span id="drawerShift" class="pill"></span>
-        <span id="drawerStatus" class="pill"></span>
-        <span id="drawerScore" class="pill"></span>
-      </div>
-
-      <div class="metrics">
-        <h3>Category Scores (1–10)</h3>
-        <ul id="metricList"></ul>
-      </div>
-
-      <div class="checklist">
-        <h3>Policy & Customer-First Checklist</h3>
-        <ul id="checklist"></ul>
-        <p class="note">Checklist captured by Operational Manager observations.</p>
-      </div>
-
-      <div class="strengths">
-        <h3>Strengths</h3>
-        <ul id="strengthsList"></ul>
-      </div>
-
-      <div class="improvements">
-        <h3>Areas for Improvement</h3>
-        <ul id="improveList"></ul>
-      </div>
-
-      <div class="comments">
-        <h3>Manager Notes</h3>
-        <p id="drawerNotes">—</p>
+<header>
+  <div class="header-in">
+    <div class="brand" onclick="go('dashboard')">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="32" height="32">
+          <rect x="5" y="16" width="5" height="11" rx="1.5"></rect>
+          <rect x="13.5" y="10" width="5" height="17" rx="1.5"></rect>
+          <rect x="22" y="5" width="5" height="22" rx="1.5"></rect>
+        </svg>
+      </span>
+      <div>
+        <h1>RSA Performance Metrics System</h1>
+        <div class="sub">AI-Ready Operations Dashboard</div>
       </div>
     </div>
-  </aside>
+    <nav>
+      <button class="btn-ghost" id="navDash" onclick="go('dashboard')">Dashboard</button>
+      <button class="btn-primary" onclick="go('rate')">+ New Rating</button>
+    </nav>
+  </div>
+</header>
 
-  <footer>
-    <p>Read-only demo (1–10 scale). Share this page link. To collect data, connect a Google Form or simple admin later.</p>
-  </footer>
+<div class="container">
 
-  <script src="app.js"></script>
+  <!-- ============ DASHBOARD ============ -->
+  <section id="view-dashboard">
+    <h2 class="page-title">Team Performance</h2>
+    <p class="page-sub">Weighted performance scoring with an explainable AI coaching layer.</p>
+
+    <div class="toolbar">
+      <button class="btn-ghost btn-sm range-btn" data-range="7">Last 7 days</button>
+      <button class="btn-ghost btn-sm range-btn active" data-range="30">Last 30 days</button>
+      <button class="btn-ghost btn-sm range-btn" data-range="all">All time</button>
+      <div class="spacer"></div>
+      <input id="search" type="search" placeholder="Search associate…" style="min-width:200px">
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+    <div id="teamCoach"></div>
+
+    <div class="card">
+      <h3>Associates</h3>
+      <p class="note" style="margin:0 0 12px">Click any associate for a full breakdown and individual AI coaching.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Associate</th><th>Overall</th><th>Status</th><th>AI Risk</th>
+            <th>CI</th><th>UC</th><th>PK</th><th>TE</th><th>EF</th><th>TC</th>
+            <th>Checklist</th><th>Ratings</th><th>Last Rated</th>
+          </tr></thead>
+          <tbody id="rosterBody"></tbody>
+        </table>
+      </div>
+      <p id="rosterEmpty" class="note" style="margin:10px 0 0">No ratings in this range.</p>
+    </div>
+  </section>
+
+  <!-- ============ DETAIL ============ -->
+  <section id="view-detail" class="hidden">
+    <button class="btn-ghost btn-sm" onclick="go('dashboard')" style="margin-bottom:16px">&larr; Back to Dashboard</button>
+    <h2 class="page-title" id="dName">Associate</h2>
+    <p class="page-sub" id="dMeta">—</p>
+
+    <div id="dCoach"></div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Category Averages</h3>
+        <p class="note" style="margin:0 0 8px">Scored 1–10. Weight shown is the contribution to the overall score.</p>
+        <div id="dCats"></div>
+      </div>
+      <div class="card">
+        <h3>Checklist Completion</h3>
+        <p class="note" style="margin:0 0 8px">Policy &amp; Customer-First checklist, % completed across all ratings.</p>
+        <div id="dChecks"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Overall Score Trend</h3>
+      <p class="note" style="margin:0 0 12px">Weighted overall (0–100) over time.</p>
+      <div class="spark" id="dSpark"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rating History</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Overall</th>
+            <th>CI</th><th>UC</th><th>PK</th><th>TE</th><th>EF</th><th>TC</th>
+            <th>Checklist</th><th>Customers</th><th>Notes</th>
+          </tr></thead>
+          <tbody id="dHistory"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RATE ============ -->
+  <section id="view-rate" class="hidden">
+    <button class="btn-ghost btn-sm" onclick="go('dashboard')" style="margin-bottom:16px">&larr; Back to Dashboard</button>
+    <h2 class="page-title">New Rating</h2>
+    <p class="page-sub">Record a performance rating. The overall score and AI coaching update automatically.</p>
+
+    <div class="card">
+      <h3>Associate</h3>
+      <input id="rName" list="nameList" placeholder="Type a name, or pick an existing associate" style="width:100%;max-width:420px;margin-top:8px">
+      <datalist id="nameList"></datalist>
+    </div>
+
+    <div class="card">
+      <h3>Category Ratings (1–10)</h3>
+      <div class="grid2" id="rCats" style="margin-top:12px"></div>
+    </div>
+
+    <div class="proj">
+      <div><div class="pv" id="rProj">70</div></div>
+      <div><div class="pl">Projected Overall</div>
+        <div class="note" id="rProjStatus" style="margin-top:2px">—</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Policy &amp; Customer-First Checklist</h3>
+      <p class="note" style="margin:0 0 12px">Check only the items completed properly.</p>
+      <div id="rChecks"></div>
+    </div>
+
+    <div class="card">
+      <h3>Customers &amp; Notes</h3>
+      <div style="margin-top:10px">
+        <label>Customers counted
+          <input id="rCust" type="number" min="1" value="1" style="width:90px;margin-left:6px">
+        </label>
+      </div>
+      <textarea id="rNotes" rows="3" placeholder="Coaching points, observations…" style="margin-top:12px"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn-ghost" onclick="go('dashboard')">Cancel</button>
+      <button class="btn-primary" onclick="submitRating()">Save Rating</button>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p><strong>RSA Performance Metrics System</strong> — a personal prototype for AI-enabled operations performance coaching.</p>
+  <p class="fine">Inspired by frontline rental car operations. Not an official product of, and not affiliated with, any company. Runs entirely in your browser — no data leaves this device.</p>
+  <p class="fine"><a onclick="resetDemo()">Reset to demo data</a></p>
+</footer>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+"use strict";
+
+/* ===================== MODEL ===================== */
+var CATS=[
+  {key:"customerInteraction",label:"Customer Interaction",abbr:"CI",weight:.20},
+  {key:"upsellCompliance",   label:"Upselling Compliance",abbr:"UC",weight:.25},
+  {key:"productKnowledge",   label:"Product Knowledge",   abbr:"PK",weight:.15},
+  {key:"transparencyEthics", label:"Transparency & Ethics",abbr:"TE",weight:.20},
+  {key:"efficiency",         label:"Efficiency",          abbr:"EF",weight:.10},
+  {key:"teamCollab",         label:"Team Collaboration",  abbr:"TC",weight:.10}
+];
+var CHECKLIST=[
+  "Greeted customer within 10 seconds",
+  "Verified ID & payment clearly",
+  "Explained insurance options neutrally",
+  "Explained fuel/EV policy accurately",
+  "Offered upgrade only if beneficial",
+  "Reviewed total cost before payment",
+  "Closed courteously & asked for questions"
+];
+var LS_KEY="rsa_pms_records_v1";
+
+function computeOverall(scores){
+  var s=0; for(var i=0;i<CATS.length;i++) s+=(scores[CATS[i].key]/10)*CATS[i].weight;
+  return +(s*100).toFixed(1);
+}
+function scoreClass(v){ return "c"+Math.max(0,Math.min(10,Math.round(v))); }
+function statusOf(o){ return o>=85?["Excellent","b-exc"]:o>=70?["On Track","b-ok"]:["Needs Coaching","b-needs"]; }
+
+/* ---- deterministic sample data (identical for every viewer) ---- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function buildSample(){
+  var rng=mulberry32(20251029), now=Date.now(), recs=[];
+  var profiles=[
+    {name:"Li Wei",         n:4, chk:.95, base:{customerInteraction:9.4,upsellCompliance:9.6,productKnowledge:9.2,transparencyEthics:9.5,efficiency:9.1,teamCollab:9.3}},
+    {name:"Aisha Khan",     n:3, chk:.90, base:{customerInteraction:8.9,upsellCompliance:8.7,productKnowledge:9.0,transparencyEthics:8.8,efficiency:8.6,teamCollab:9.1}},
+    {name:"John Smith",     n:3, chk:.82, base:{customerInteraction:8.4,upsellCompliance:6.0,productKnowledge:8.2,transparencyEthics:8.5,efficiency:8.7,teamCollab:8.1}},
+    {name:"Emily Davis",    n:3, chk:.78, base:{customerInteraction:7.9,upsellCompliance:7.7,productKnowledge:8.0,transparencyEthics:7.8,efficiency:6.3,teamCollab:7.6}},
+    {name:"Carlos Rodriguez",n:4,chk:.62, base:{customerInteraction:6.1,upsellCompliance:5.4,productKnowledge:6.8,transparencyEthics:5.8,efficiency:7.3,teamCollab:6.4}}
+  ];
+  profiles.forEach(function(p){
+    for(var i=0;i<p.n;i++){
+      var scores={};
+      CATS.forEach(function(c){
+        var v=p.base[c.key]+(rng()*1.6-0.8);
+        scores[c.key]=Math.max(1,Math.min(10,Math.round(v)));
+      });
+      var checklist=CHECKLIST.map(function(){return rng()<p.chk;});
+      var daysBack=Math.floor(rng()*27)+1;
+      recs.push({
+        id:"s"+recs.length, name:p.name,
+        timestamp:new Date(now-daysBack*86400000).toISOString(),
+        scores:scores, checklist:checklist,
+        customersServed:Math.floor(rng()*14)+8,
+        notes:"", overall:computeOverall(scores)
+      });
+    }
+  });
+  return recs;
+}
+
+var RECORDS=[];
+function loadRecords(){
+  try{ var r=localStorage.getItem(LS_KEY); if(r){ var p=JSON.parse(r); if(Array.isArray(p)&&p.length) return p; } }catch(e){}
+  var s=buildSample(); try{ localStorage.setItem(LS_KEY,JSON.stringify(s)); }catch(e){}
+  return s;
+}
+function saveRecords(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(RECORDS)); }catch(e){} }
+function resetDemo(){
+  RECORDS=buildSample(); saveRecords(); renderDashboard(); go("dashboard"); toast("Demo data restored");
+}
+
+/* ===================== AI COACHING ENGINE ===================== */
+var Coach=(function(){
+  var BELOW=7, STRONG=8;
+  var OPP={
+    transparencyEthics:"Coaching on pricing clarity and accurate policy explanation (Transparency & Ethics)",
+    efficiency:"Coaching on process speed and workflow efficiency (Efficiency)",
+    upsellCompliance:"Coaching on customer-focused, needs-based upgrade offers (Upselling Compliance)",
+    customerInteraction:"Coaching on customer engagement, greeting standards and rapport (Customer Interaction)",
+    productKnowledge:"Coaching on product knowledge and accurate policy detail (Product Knowledge)",
+    teamCollab:"Coaching on teamwork, collaboration and shift support (Team Collaboration)"
+  };
+  function forScores(scores,name){
+    name=name||"This associate";
+    var sc=CATS.map(function(c){return {key:c.key,label:c.label,value:+scores[c.key]||0};});
+    var have=sc.filter(function(s){return s.value>0;});
+    var below=have.filter(function(s){return s.value<BELOW;});
+    var strengths=have.filter(function(s){return s.value>STRONG;})
+      .map(function(s){return "Strong "+s.label+" ("+s.value.toFixed(1)+"/10)";});
+    if(!strengths.length) strengths.push("Maintains a consistent baseline across all categories");
+    var opps=[];
+    ["transparencyEthics","efficiency","upsellCompliance","customerInteraction","productKnowledge","teamCollab"]
+      .forEach(function(k){ var v=+scores[k]||0; if(v>0&&v<BELOW) opps.push(OPP[k]); });
+    if(!opps.length) opps.push("No critical coaching gaps — focus on sustaining current standards");
+    var risk=below.length>=2?"High":below.length===1?"Medium":"Low";
+    var action={
+      High:"Schedule a structured 1:1 coaching session within 5 business days and arrange a shadow shift with a top performer.",
+      Medium:"Hold a brief, targeted check-in this week on the flagged category, then reassess at the next rating cycle.",
+      Low:"Recognise performance and assign a stretch goal or peer-mentoring responsibility."
+    }[risk];
+    var low=have.length?have.reduce(function(a,b){return b.value<a.value?b:a;}):{label:"the lowest category"};
+    var note=risk==="High"
+      ? name+" has clear, addressable gaps; with focused support on "+low.label+", performance can improve quickly within one cycle."
+      : risk==="Medium"
+      ? name+" is performing solidly overall; a short, specific conversation on "+low.label+" should close the remaining gap."
+      : name+" is a dependable, consistent performer; consider stretch responsibilities and a peer-mentoring role.";
+    return {strengths:strengths,opportunities:opps,risk:risk,action:action,note:note};
+  }
+  function forTeam(list){
+    var counts={Low:0,Medium:0,High:0};
+    list.forEach(function(m){ counts[forScores(m.catAvg,m.name).risk]++; });
+    var tally={}; CATS.forEach(function(c){tally[c.label]=0;});
+    list.forEach(function(m){ CATS.forEach(function(c){
+      var v=+m.catAvg[c.key]||0; if(v>0&&v<BELOW) tally[c.label]++; }); });
+    var themes=Object.keys(tally).filter(function(k){return tally[k]>0;})
+      .sort(function(a,b){return tally[b]-tally[a];})
+      .map(function(k){return k+" — "+tally[k]+" associate"+(tally[k]>1?"s":"")+" below "+BELOW;});
+    var risk=counts.High>0?"High":counts.Medium>0?"Medium":"Low";
+    var strengths=[
+      counts.Low+" of "+list.length+" associates rated Low risk",
+      themes.length?"Top performers are available to support peer mentoring"
+                   :"No category is systematically weak across the team"
+    ];
+    var opps=themes.length?themes.map(function(t){return "Team focus area: "+t;})
+                          :["No team-wide coaching gaps identified this cycle"];
+    var action={
+      High:"Prioritise the High-risk associates this week and run a short team huddle on the most common focus area.",
+      Medium:"Address the flagged associates individually and reinforce standards in the next team briefing.",
+      Low:"Sustain current standards; use top performers to mentor and lift the overall baseline."
+    }[risk];
+    var note=themes.length
+      ? "The team's main coaching theme is "+themes[0].split(" — ")[0]+"; a focused group session plus targeted 1:1s will lift overall results."
+      : "The team is performing consistently; the priority is sustaining standards and building depth through mentoring.";
+    return {strengths:strengths,opportunities:opps,risk:risk,action:action,note:note,counts:counts};
+  }
+  function card(o,title,meta){
+    return '<div class="coach">'+
+      '<div class="coach-head"><div><h3>'+title+'</h3>'+(meta?'<div class="m">'+meta+'</div>':'')+'</div>'+
+      '<span class="ai-tag">AI \u00b7 rules-based</span></div>'+
+      '<div class="coach-grid">'+
+        '<div><h4>Strengths</h4><ul class="list good">'+
+          o.strengths.map(function(s){return "<li>"+s+"</li>";}).join("")+'</ul></div>'+
+        '<div><h4>Coaching Opportunities</h4><ul class="list watch">'+
+          o.opportunities.map(function(x){return "<li>"+x+"</li>";}).join("")+'</ul></div>'+
+      '</div>'+
+      '<div class="coach-row">'+
+        '<div class="coach-risk"><span class="rk-lab">Risk Level</span>'+
+          '<span class="badge lg b-'+o.risk.toLowerCase()+'">'+o.risk+'</span></div>'+
+        '<div class="coach-act"><span class="rk-lab">Suggested Manager Action</span><p>'+o.action+'</p></div>'+
+      '</div>'+
+      '<blockquote class="coach-note"><span class="q">\u201c</span>'+o.note+'</blockquote>'+
+      '<p class="coach-foot">Generated locally by an explainable, rules-based engine. A future release can route '+
+      'this through a secure backend for OpenAI / Azure OpenAI summaries — no API key is ever stored in the browser.</p>'+
+    '</div>';
+  }
+  return {forScores:forScores,forTeam:forTeam,card:card};
+})();
+
+/* ===================== AGGREGATION ===================== */
+function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
+function inRange(ts,range){
+  if(range==="all") return true;
+  var days=+range, cut=Date.now()-days*86400000;
+  return new Date(ts).getTime()>=cut;
+}
+function aggregate(records){
+  var map={};
+  records.forEach(function(r){
+    if(!map[r.name]) map[r.name]=[];
+    map[r.name].push(r);
+  });
+  return Object.keys(map).map(function(name){
+    var rows=map[name].slice().sort(function(a,b){return new Date(b.timestamp)-new Date(a.timestamp);});
+    var catAvg={};
+    CATS.forEach(function(c){
+      var vals=rows.map(function(r){return r.scores&&r.scores[c.key]!=null?+r.scores[c.key]:null;})
+        .filter(function(v){return v!=null&&isFinite(v);});
+      catAvg[c.key]=vals.length?avg(vals):0;
+    });
+    var totalChk=rows.reduce(function(a,r){return a+((r.checklist||[]).length||0);},0);
+    var okChk=rows.reduce(function(a,r){return a+((r.checklist||[]).filter(Boolean).length||0);},0);
+    return {
+      name:name, rows:rows, count:rows.length,
+      catAvg:catAvg,
+      overall:avg(rows.map(function(r){return +r.overall||0;})),
+      checklistPct:totalChk?100*okChk/totalChk:0,
+      last:rows[0].timestamp,
+      customers:rows.reduce(function(a,r){return a+(+r.customersServed||1);},0)
+    };
+  }).sort(function(a,b){return b.overall-a.overall;});
+}
+
+/* ===================== VIEWS ===================== */
+var dashRange="30";
+
+function go(view){
+  ["dashboard","detail","rate"].forEach(function(v){
+    document.getElementById("view-"+v).classList.toggle("hidden",v!==view);
+  });
+  document.getElementById("navDash").classList.toggle("active",view==="dashboard");
+  window.scrollTo(0,0);
+  if(view==="rate") buildRateForm();
+}
+
+function renderDashboard(){
+  var q=(document.getElementById("search").value||"").toLowerCase();
+  var rows=RECORDS.filter(function(r){return inRange(r.timestamp,dashRange);});
+  var agg=aggregate(rows);
+  var shown=agg.filter(function(a){return a.name.toLowerCase().indexOf(q)>=0;});
+
+  /* KPIs */
+  var n=agg.length;
+  var teamAvg=n?avg(agg.map(function(a){return a.overall;})):0;
+  var exc=agg.filter(function(a){return a.overall>=85;}).length;
+  var need=agg.filter(function(a){return Coach.forScores(a.catAvg,a.name).risk==="High";}).length;
+  var kpis=[
+    {lab:"Associates",value:n,sub:"rated in range"},
+    {lab:"Team Average",value:n?teamAvg.toFixed(0):"—",sub:"weighted 0–100"},
+    {lab:"Excellent",value:exc,sub:"overall \u2265 85"},
+    {lab:"Needs Coaching",value:need,sub:"High AI risk"}
+  ];
+  document.getElementById("kpis").innerHTML=kpis.map(function(k){
+    return '<div class="kpi"><div class="lab">'+k.lab+'</div><div class="val">'+k.value+'</div>'+
+           '<div class="sub">'+k.sub+'</div></div>';
+  }).join("");
+
+  /* team coaching */
+  var tc=document.getElementById("teamCoach");
+  if(!agg.length){
+    tc.innerHTML='<div class="card"><p class="note" style="margin:0">No ratings in this range. '+
+      'Add one with “+ New Rating”, or widen the date range.</p></div>';
+  }else{
+    var c=Coach.forTeam(agg);
+    tc.innerHTML=Coach.card(c,"Team Coaching Summary",
+      "Selected range \u00b7 "+agg.length+" associates \u00b7 "+
+      c.counts.High+" High / "+c.counts.Medium+" Medium / "+c.counts.Low+" Low risk");
+  }
+
+  /* roster table */
+  var tb=document.getElementById("rosterBody"); tb.innerHTML="";
+  shown.forEach(function(a){
+    var st=statusOf(a.overall), risk=Coach.forScores(a.catAvg,a.name).risk;
+    var tr=document.createElement("tr");
+    tr.className="clickable";
+    tr.onclick=function(){ renderDetail(a.name); };
+    var cells='<td><span class="name">'+a.name+'</span></td>'+
+      '<td><span class="score '+scoreClass(a.overall/10)+'">'+a.overall.toFixed(0)+'</span></td>'+
+      '<td><span class="badge '+st[1]+'">'+st[0]+'</span></td>'+
+      '<td><span class="badge b-'+risk.toLowerCase()+'">'+risk+'</span></td>';
+    CATS.forEach(function(c){
+      var v=a.catAvg[c.key];
+      cells+='<td><span class="score '+scoreClass(v)+'">'+v.toFixed(1)+'</span></td>';
+    });
+    cells+='<td>'+a.checklistPct.toFixed(0)+'%</td>'+
+      '<td>'+a.count+'</td>'+
+      '<td>'+a.last.slice(0,10)+'</td>';
+    tr.innerHTML=cells;
+    tb.appendChild(tr);
+  });
+  document.getElementById("rosterEmpty").style.display=shown.length?"none":"block";
+}
+
+function renderDetail(name){
+  var rows=RECORDS.filter(function(r){return r.name===name;})
+    .sort(function(a,b){return new Date(b.timestamp)-new Date(a.timestamp);});
+  if(!rows.length){ go("dashboard"); return; }
+  var agg=aggregate(rows)[0];
+
+  document.getElementById("dName").textContent=name;
+  var st=statusOf(agg.overall);
+  document.getElementById("dMeta").innerHTML=
+    '<span class="score '+scoreClass(agg.overall/10)+'" style="margin-right:8px">'+agg.overall.toFixed(0)+'</span>'+
+    '<span class="badge '+st[1]+'">'+st[0]+'</span>'+
+    '&nbsp;&nbsp;'+agg.count+' rating'+(agg.count>1?'s':'')+' \u00b7 '+agg.customers+' customers \u00b7 last rated '+agg.last.slice(0,10);
+
+  /* AI coaching */
+  var c=Coach.forScores(agg.catAvg,name);
+  document.getElementById("dCoach").innerHTML=Coach.card(c,"AI Coaching Summary — "+name,
+    "Based on "+agg.count+" rating"+(agg.count>1?"s":""));
+
+  /* category bars */
+  var cat=document.getElementById("dCats"); cat.innerHTML="";
+  CATS.forEach(function(cc){
+    var v=agg.catAvg[cc.key];
+    cat.innerHTML+='<div class="catbar">'+
+      '<span class="cn">'+cc.label+' <span class="note">('+(cc.weight*100)+'%)</span></span>'+
+      '<span class="track"><span class="fill '+scoreClass(v)+'" style="width:'+(v*10)+'%"></span></span>'+
+      '<span class="cv">'+v.toFixed(1)+'</span></div>';
+  });
+
+  /* checklist completion */
+  var ch=document.getElementById("dChecks"); ch.innerHTML="";
+  CHECKLIST.forEach(function(item,i){
+    var tot=rows.reduce(function(a,r){return a+((r.checklist||[]).length>i?1:0);},0);
+    var ok=rows.reduce(function(a,r){return a+((r.checklist||[])[i]?1:0);},0);
+    var pct=tot?100*ok/tot:0;
+    ch.innerHTML+='<div class="catbar" style="grid-template-columns:1fr 90px 46px">'+
+      '<span class="cn">'+item+'</span>'+
+      '<span class="track"><span class="fill '+scoreClass(pct/10)+'" style="width:'+pct+'%"></span></span>'+
+      '<span class="cv">'+pct.toFixed(0)+'%</span></div>';
+  });
+
+  /* trend sparkline */
+  var series=rows.slice().reverse().map(function(r){return +r.overall||0;});
+  document.getElementById("dSpark").innerHTML=sparkline(series);
+
+  /* history */
+  var hb=document.getElementById("dHistory"); hb.innerHTML="";
+  rows.forEach(function(r){
+    var s=r.scores||{};
+    var cells='<td>'+(r.timestamp||"").slice(0,10)+'</td>'+
+      '<td><span class="score '+scoreClass((+r.overall||0)/10)+'">'+(+r.overall||0).toFixed(0)+'</span></td>';
+    CATS.forEach(function(c){
+      var v=+s[c.key]||0;
+      cells+='<td><span class="score '+scoreClass(v)+'">'+v.toFixed(0)+'</span></td>';
+    });
+    var done=(r.checklist||[]).filter(Boolean).length;
+    cells+='<td>'+done+'/'+(r.checklist||[]).length+'</td>'+
+      '<td>'+(+r.customersServed||1)+'</td>'+
+      '<td>'+(r.notes?r.notes:'<span class="note">—</span>')+'</td>';
+    var tr=document.createElement("tr"); tr.innerHTML=cells; hb.appendChild(tr);
+  });
+
+  go("detail");
+}
+
+function sparkline(values){
+  if(values.length<2) return '<p class="note" style="margin:0">Add more ratings to see a trend.</p>';
+  var w=560,h=110,pad=6;
+  var step=(w-pad*2)/(values.length-1);
+  var pts=values.map(function(v,i){
+    return [pad+i*step, h-pad-((Math.max(0,Math.min(100,v)))/100)*(h-pad*2)];
+  });
+  var line=pts.map(function(p,i){return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1);}).join(" ");
+  var area=line+" L "+pts[pts.length-1][0].toFixed(1)+" "+(h-pad)+" L "+pts[0][0].toFixed(1)+" "+(h-pad)+" Z";
+  var dots=pts.map(function(p){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+
+    '" r="3.4" fill="#2fe0c4" stroke="#0b0d13" stroke-width="2"/>';}).join("");
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="overflow:visible">'+
+    '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#2fe0c4" stop-opacity=".30"/>'+
+    '<stop offset="1" stop-color="#2fe0c4" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="'+area+'" fill="url(#sg)"/>'+
+    '<path d="'+line+'" fill="none" stroke="#2fe0c4" stroke-width="2.4" '+
+    'stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>';
+}
+
+/* ===================== RATE FORM ===================== */
+function buildRateForm(){
+  /* name suggestions */
+  var names={}; RECORDS.forEach(function(r){names[r.name]=1;});
+  document.getElementById("nameList").innerHTML=
+    Object.keys(names).sort().map(function(n){return '<option value="'+n+'">';}).join("");
+
+  /* category chips */
+  var box=document.getElementById("rCats"); box.innerHTML="";
+  CATS.forEach(function(c){
+    var chips="";
+    for(var v=1;v<=10;v++){
+      chips+='<input type="radio" name="rc_'+c.key+'" id="rc_'+c.key+'_'+v+'" value="'+v+'"'+
+        (v===7?' checked':'')+'>'+
+        '<label for="rc_'+c.key+'_'+v+'" class="c'+v+'">'+v+'</label>';
+    }
+    var div=document.createElement("div");
+    div.className="rate-cat";
+    div.innerHTML='<div class="cl">'+c.label+'<span class="w">weight '+(c.weight*100)+'%</span></div>'+
+      '<div class="chips">'+chips+'</div>';
+    box.appendChild(div);
+  });
+  box.addEventListener("change",updateProjection);
+
+  /* checklist */
+  var cb=document.getElementById("rChecks"); cb.innerHTML="";
+  CHECKLIST.forEach(function(item,i){
+    cb.innerHTML+='<label class="chk"><input type="checkbox" id="rchk_'+i+'"><span>'+item+'</span></label>';
+  });
+
+  /* reset fields */
+  document.getElementById("rName").value="";
+  document.getElementById("rCust").value="1";
+  document.getElementById("rNotes").value="";
+  updateProjection();
+}
+function readRateScores(){
+  var s={};
+  CATS.forEach(function(c){
+    var el=document.querySelector('input[name="rc_'+c.key+'"]:checked');
+    s[c.key]=el?+el.value:7;
+  });
+  return s;
+}
+function updateProjection(){
+  var o=computeOverall(readRateScores());
+  document.getElementById("rProj").textContent=o.toFixed(0);
+  var st=statusOf(o);
+  document.getElementById("rProjStatus").textContent=st[0];
+}
+function submitRating(){
+  var name=(document.getElementById("rName").value||"").trim();
+  if(!name){ alert("Please enter an associate name."); return; }
+  var scores=readRateScores();
+  var checklist=CHECKLIST.map(function(_,i){return document.getElementById("rchk_"+i).checked;});
+  var rec={
+    id:"r"+Date.now(),
+    name:name,
+    timestamp:new Date().toISOString(),
+    scores:scores,
+    checklist:checklist,
+    customersServed:Math.max(1,+document.getElementById("rCust").value||1),
+    notes:(document.getElementById("rNotes").value||"").trim(),
+    overall:computeOverall(scores)
+  };
+  RECORDS.push(rec);
+  saveRecords();
+  renderDashboard();
+  go("dashboard");
+  toast("Rating saved for "+name);
+}
+
+/* ===================== MISC ===================== */
+function toast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(function(){t.classList.remove("show");},1800);
+}
+document.querySelectorAll(".range-btn").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".range-btn").forEach(function(x){x.classList.remove("active");});
+    b.classList.add("active");
+    dashRange=b.dataset.range;
+    renderDashboard();
+  });
+});
+document.getElementById("search").addEventListener("input",renderDashboard);
+
+/* ===================== INIT ===================== */
+RECORDS=loadRecords();
+renderDashboard();
+go("dashboard");
+</script>
 </body>
 </html>
