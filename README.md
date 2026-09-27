@@ -1,6 +1,15 @@
-# Frontline performance dashboard
+# RSA Monitor — Operational Analytics & Performance Review
 
-A personal, browser-based prototype for reviewing frontline service performance and coaching opportunities. It uses **sample data** and contains no confidential company records.
+A browser-based operational analytics prototype connecting weighted performance indicators with searchable records and individual coaching context. It demonstrates how a reviewer moves from team-level signals to the category scores and observations behind an individual review. The application uses **sample data** and contains no confidential company records.
+
+
+## Engineering focus
+
+The interface connects summary metrics, record search and sorting, and a contextual detail drawer. Its value lies in the information hierarchy: reviewers can inspect performance categories, checklist items, strengths, and coaching notes within a consistent interaction.
+
+**Technology:** HTML, CSS, vanilla JavaScript. Scores are defined in sample records; this is a front-end workflow demonstration.
+
+[Read the portfolio case study](https://teme251.github.io/teme251/project-rsa.html)
 
 ## What it shows
 
